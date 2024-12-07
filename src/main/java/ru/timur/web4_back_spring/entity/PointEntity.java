@@ -15,9 +15,9 @@ import java.util.Date;
 
 @Entity
 @Table(name = "point")
-public class PointEntity implements Serializable {
+public class PointEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     private long id;
 
     @NotNull
@@ -40,6 +40,6 @@ public class PointEntity implements Serializable {
 
     @NotNull
     @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
-    private UserEntity user;
+    @JoinColumn(name = "user_id")
+    private User user;
 }

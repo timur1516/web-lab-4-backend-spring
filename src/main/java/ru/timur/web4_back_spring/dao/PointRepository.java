@@ -8,8 +8,8 @@ import ru.timur.web4_back_spring.entity.PointEntity;
 import java.util.List;
 
 @Repository
-public interface PointDAO extends JpaRepository<PointEntity, Long> {
+public interface PointRepository extends JpaRepository<PointEntity, Long> {
     List<PointEntity> findByUserId(Long userId);
-
-    Long deleteByUserId(Long userId);
+    @Transactional
+    void deleteByUserId(Long userId);
 }

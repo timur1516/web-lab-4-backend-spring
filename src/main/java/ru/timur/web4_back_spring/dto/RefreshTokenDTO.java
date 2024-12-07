@@ -3,14 +3,15 @@ package ru.timur.web4_back_spring.dto;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
-import java.io.Serializable;
+import java.util.Date;
+import java.util.UUID;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class TokenDTO implements Serializable {
-    @NotNull(message = "Token cannot be null")
-    private String token;
+public class RefreshTokenDTO {
+    @NotNull(message = "Refresh token cannot be null")
+    private UUID token;
 }
