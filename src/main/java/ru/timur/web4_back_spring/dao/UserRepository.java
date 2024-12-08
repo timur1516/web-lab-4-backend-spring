@@ -14,23 +14,18 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
     @Modifying
     @Transactional
-    @Query("UPDATE User u SET u.login = :login WHERE u.id = :id")
-    void updateUsername(@Param("login") String login, @Param("id") Long id);
+    @Query("UPDATE User u SET u.password = :password WHERE u.username = :username")
+    void updatePasswordByUsername(@Param("password") String password, @Param("username") String username);
 
     @Modifying
     @Transactional
-    @Query("UPDATE User u SET u.password = :password WHERE u.id = :id")
-    void updatePassword(@Param("password") String password, @Param("id") Long id);
-
-    @Modifying
-    @Transactional
-    @Query("UPDATE User u SET u.avatar = :avatar, u.avatarType = :avatarType WHERE u.id = :id")
-    void updateAvatar(@Param("avatar") byte[] avatar, @Param("avatarType") String avatarType, @Param("id") Long id);
+    @Query("UPDATE User u SET u.firstName = :firstName, u.lastName = :lastName WHERE u.id = :id")
+    void updateDetailsById(@Param("firstName") String firstName, @Param("lastName") String lastName, @Param("id") Long id);
 
     @Transactional
     @Query("SELECT u FROM User u WHERE u.id != :id ORDER BY RANDOM() LIMIT 1")
     Optional<User> getRandomUserWithDifferentId(@Param("id") Long id);
 
     @Transactional
-    Optional<User> findByLogin(String login);
+    Optional<User> findByUsername(String username);
 }

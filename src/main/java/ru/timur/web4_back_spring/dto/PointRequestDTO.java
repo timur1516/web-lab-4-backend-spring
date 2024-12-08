@@ -1,19 +1,15 @@
 package ru.timur.web4_back_spring.dto;
 
 import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.*;
-
-import java.io.Serializable;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class PointRequestDTO implements Serializable {
+public class PointRequestDTO {
     @NotNull(message = "X cannot be null")
     private double x;
 

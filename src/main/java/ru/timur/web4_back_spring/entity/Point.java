@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
-import java.io.Serializable;
 import java.util.Date;
 
 @Getter
@@ -15,7 +14,7 @@ import java.util.Date;
 
 @Entity
 @Table(name = "point")
-public class PointEntity {
+public class Point {
     @Id
     @GeneratedValue
     private long id;

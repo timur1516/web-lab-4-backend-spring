@@ -2,9 +2,8 @@ package ru.timur.web4_back_spring.dto;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import ru.timur.web4_back_spring.entity.PointEntity;
+import ru.timur.web4_back_spring.entity.Point;
 
-import java.io.Serializable;
 import java.util.Date;
 
 @Getter
@@ -12,7 +11,7 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class PointResponseDTO implements Serializable {
+public class PointResponseDTO {
     private double x;
     private double y;
     private double r;
@@ -20,12 +19,12 @@ public class PointResponseDTO implements Serializable {
     private Date reqTime;
     private long procTime;
 
-    public PointResponseDTO(@NotNull PointEntity pointEntity) {
-        this.x = pointEntity.getX();
-        this.y = pointEntity.getY();
-        this.r = pointEntity.getR();
-        this.hit = pointEntity.isHit();
-        this.reqTime = pointEntity.getReqTime();
-        this.procTime = pointEntity.getProcTime();
+    public PointResponseDTO(@NotNull Point point) {
+        this.x = point.getX();
+        this.y = point.getY();
+        this.r = point.getR();
+        this.hit = point.isHit();
+        this.reqTime = point.getReqTime();
+        this.procTime = point.getProcTime();
     }
 }

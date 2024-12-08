@@ -8,14 +8,17 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.filter.OncePerRequestFilter;
 import ru.timur.web4_back_spring.service.AccessTokenService;
 
@@ -25,6 +28,15 @@ import java.io.IOException;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+    private static final RequestMatcher ignore = new OrRequestMatcher(
+            new AntPathRequestMatcher("/auth/**", HttpMethod.GET.name()),
+            new AntPathRequestMatcher("/auth/**", HttpMethod.POST.name())
+    );
+
+    private static final String AUTHORIZATION_HEADER = "Authorization";
+    private static final String BEARER_PREFIX = "Bearer";
+
     private final AccessTokenService accessTokenService;
     private final UserDetailsService userDetailsService;
 
@@ -36,32 +48,33 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
 
         String requestURL = request.getRequestURL().toString();
-        log.info("Получен URL: {}", requestURL);
+        log.info("Received request with url {}", requestURL);
 
-        if (requestURL.contains("/auth/")) {
-            log.info("Skipping authentication");
+        final String authHeader = request.getHeader(AUTHORIZATION_HEADER);
+        log.info("Authorization header: {}", authHeader);
+
+        if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX)) {
+            log.warn("Bearer token was not found");
             filterChain.doFilter(request, response);
             return;
         }
 
-        final String authHeader = request.getHeader("Authorization");
-        final String jwt;
-        final String username;
-        log.info("Received JWT header: {}", authHeader);
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            log.warn("No bearer token found");
-            filterChain.doFilter(request, response);
-            return;
-        }
-        jwt = authHeader.substring(7);
+        final String token;
+        token = authHeader.substring(BEARER_PREFIX.length()).trim();
+        log.info("Bearer token: {}", token);
+
         try {
-            accessTokenService.verifyToken(jwt);
+            accessTokenService.verifyToken(token);
         } catch (JWTVerificationException e) {
             log.warn("Token verification failed: {}", e.getMessage());
-            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+            response.setStatus(HttpStatus.FORBIDDEN.value());
             return;
         }
-        username = accessTokenService.extractUsername(jwt);
+
+        final String username;
+        username = accessTokenService.extractUsername(token);
+        log.info("Username {}", username);
+
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             try {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
@@ -69,11 +82,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         userDetails, null, userDetails.getAuthorities()
                 );
                 SecurityContextHolder.getContext().setAuthentication(authToken);
-            } catch (UsernameNotFoundException e) {
-                response.setStatus(HttpStatus.NOT_FOUND.value());
+            } catch (UsernameNotFoundException e){
+                log.warn("Username {} not found", username);
+                response.setStatus(HttpStatus.FORBIDDEN.value());
                 return;
             }
         }
         filterChain.doFilter(request, response);
+    }
+
+    @Override
+    public boolean shouldNotFilter(@NotNull HttpServletRequest request) {
+        return ignore.matches(request);
     }
 }

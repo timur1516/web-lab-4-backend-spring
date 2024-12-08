@@ -3,9 +3,10 @@ package ru.timur.web4_back_spring.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import ru.timur.web4_back_spring.dao.RefreshTokenRepository;
 import ru.timur.web4_back_spring.entity.RefreshToken;
+import ru.timur.web4_back_spring.entity.User;
+import ru.timur.web4_back_spring.exception.RefreshTokenNotFoundException;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -22,8 +23,9 @@ public class RefreshTokenService {
 
     private final RefreshTokenRepository refreshTokenRepository;
 
-    public UUID generateRefreshToken() {
+    public UUID generateRefreshToken(User user) {
         RefreshToken refreshToken = RefreshToken.builder()
+                .user(user)
                 .issuedAt(Date.from(Instant.now()))
                 .expiresAt(Date.from(Instant.now().plus(refreshTokenValidity)))
                 .build();
@@ -33,16 +35,16 @@ public class RefreshTokenService {
 
     }
 
-    public RefreshToken getRefreshToken(UUID token) {
-        return refreshTokenRepository.findById(token).orElse(null);
+    public RefreshToken getRefreshToken(UUID token) throws RefreshTokenNotFoundException {
+        return refreshTokenRepository.findById(token)
+                .orElseThrow(() -> new RefreshTokenNotFoundException("Token " + token.toString() + " was not found"));
     }
 
-    public boolean isTokenValid(RefreshToken refreshToken) {
-        if (refreshToken == null) return false;
-        return !refreshToken.getExpiresAt().before(Date.from(Instant.now()));
+    public boolean isExpired(RefreshToken refreshToken) {
+        return refreshToken.getExpiresAt().before(Date.from(Instant.now()));
     }
 
-    public void removeToken(RefreshToken refreshToken) {
-        refreshTokenRepository.deleteById(refreshToken.getId());
+    public void removeToken(UUID token) {
+        refreshTokenRepository.deleteById(token);
     }
 }

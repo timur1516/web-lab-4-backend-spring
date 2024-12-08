@@ -1,26 +1,29 @@
 package ru.timur.web4_back_spring.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.timur.web4_back_spring.dao.AvatarRepository;
 import ru.timur.web4_back_spring.dao.PointRepository;
 import ru.timur.web4_back_spring.dao.UserRepository;
 import ru.timur.web4_back_spring.dto.*;
-import ru.timur.web4_back_spring.entity.PointEntity;
+import ru.timur.web4_back_spring.entity.Point;
 import ru.timur.web4_back_spring.entity.User;
-import ru.timur.web4_back_spring.util.AreaChecker;
 
 import java.util.Base64;
 import java.util.List;
 
+@Slf4j
 @Transactional
 @Service
 @RequiredArgsConstructor
 public class UserService {
     private final PointRepository pointRepository;
-    private final AreaChecker areaChecker;
     private final UserRepository userRepository;
+    private final AvatarRepository avatarRepository;
     private final AuthenticationService authenticationService;
+    private final AreaCheckService areaCheckService;
 
     public List<PointResponseDTO> getAllPoints(User user) {
         return pointRepository.findByUserId(user.getId())
@@ -30,9 +33,8 @@ public class UserService {
     }
 
     public PointResponseDTO addPoint(PointRequestDTO point, User user) {
-        PointResponseDTO response = areaChecker.checkPoint(point);
-        PointEntity pointEntity = PointEntity
-                .builder()
+        PointResponseDTO response = areaCheckService.checkPoint(point);
+        Point pointEntity = Point.builder()
                 .x(response.getX())
                 .y(response.getY())
                 .r(response.getR())
@@ -46,18 +48,10 @@ public class UserService {
     }
 
     public void updateAvatar(ImageDTO avatar, User user) {
-        userRepository.updateAvatar(
+        avatarRepository.updateAvatarByUserId(
                 Base64.getDecoder().decode(avatar.getBase64()),
                 avatar.getType(),
                 user.getId());
-    }
-
-    public void updateUsername(String username, User user) {
-        userRepository.updateUsername(username, user.getId());
-    }
-
-    public void updatePassword(String password, User user) {
-        userRepository.updatePassword(password, user.getId());
     }
 
     public void removePoints(User user) {
@@ -65,15 +59,27 @@ public class UserService {
     }
 
     public UserProfileDataDTO getUserProfileData(User user) {
+        ImageDTO avatar = null;
+        if (user.getAvatar() != null && user.getAvatar().getBase64() != null) {
+            avatar = ImageDTO.builder()
+                    .base64(Base64.getEncoder().encodeToString(user.getAvatar().getBase64()))
+                    .type(user.getAvatar().getImageType())
+                    .build();
+        }
         return UserProfileDataDTO
                 .builder()
-                .username(user.getLogin())
-                .avatar(user.getAvatar() != null ? Base64.getEncoder().encodeToString(user.getAvatar()) : null)
-                .avatarType(user.getAvatarType())
+                .username(user.getUsername())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .avatar(avatar)
                 .build();
     }
 
     public CredentialsDTO findGoodOrNew(User user) {
         return authenticationService.findGoodOrNew(user);
+    }
+
+    public void updateDetails(UserDetailsDTO userDetailsDTO, User user) {
+        userRepository.updateDetailsById(userDetailsDTO.getFirstName(), userDetailsDTO.getLastName(), user.getId());
     }
 }

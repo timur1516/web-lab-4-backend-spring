@@ -1,16 +1,15 @@
-package ru.timur.web4_back_spring.util;
+package ru.timur.web4_back_spring.service;
 
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import ru.timur.web4_back_spring.dto.PointRequestDTO;
 import ru.timur.web4_back_spring.dto.PointResponseDTO;
 
 import java.util.Date;
 
-@Component
-public class AreaChecker {
+@Service
+public class AreaCheckService {
     public PointResponseDTO checkPoint(PointRequestDTO request) {
-        PointResponseDTO response = PointResponseDTO
-                .builder()
+        PointResponseDTO response = PointResponseDTO.builder()
                 .x(request.getX())
                 .y(request.getY())
                 .r(request.getR())

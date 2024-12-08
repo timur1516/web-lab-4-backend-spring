@@ -26,30 +26,28 @@ public class User implements UserDetails {
     private Long id;
 
     @Column(unique = true, nullable = false, length = 50)
-    private String login;
+    private String username;
 
     @Column(nullable = false)
     private String password;
 
+    @Column(nullable = false, length = 50)
+    private String firstName;
+
+    @Column(nullable = false, length = 50)
+    private String lastName;
+
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @Lob
-    @Column
-    private byte[] avatar;
-
-    @Column
-    private String avatarType;
+    @OneToOne(mappedBy = "user", cascade = CascadeType.PERSIST)
+    private Avatar avatar;
 
     @OneToMany(mappedBy = "user")
-    private Set<PointEntity> points;
+    private Set<Point> points;
 
     @OneToMany(mappedBy = "user")
     private Set<RefreshToken> refreshTokens;
-
-    public String getUsername() {
-        return id.toString();
-    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

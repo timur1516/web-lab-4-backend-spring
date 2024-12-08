@@ -2,15 +2,14 @@ package ru.timur.web4_back_spring.dto;
 
 import lombok.*;
 
-import java.io.Serializable;
-
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UserProfileDataDTO implements Serializable {
+public class UserProfileDataDTO {
     private String username;
-    private String avatar;
-    private String avatarType;
+    private String firstName;
+    private String lastName;
+    private ImageDTO avatar;
 }

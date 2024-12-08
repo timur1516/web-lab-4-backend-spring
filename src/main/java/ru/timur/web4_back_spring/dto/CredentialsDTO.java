@@ -12,11 +12,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CredentialsDTO implements Serializable {
-    @NotNull(message = "Access token cannot be null")
-    @NotBlank(message = "Access token cannot be empty")
+public class CredentialsDTO {
     private String accessToken;
-
-    @NotNull(message = "Refresh token cannot be null")
     private UUID refreshToken;
 }
