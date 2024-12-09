@@ -1,4 +1,4 @@
-package ru.timur.web4_back_spring.dao;
+package ru.timur.web4_back_spring.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

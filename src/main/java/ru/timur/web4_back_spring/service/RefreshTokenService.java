@@ -3,7 +3,7 @@ package ru.timur.web4_back_spring.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import ru.timur.web4_back_spring.dao.RefreshTokenRepository;
+import ru.timur.web4_back_spring.repository.RefreshTokenRepository;
 import ru.timur.web4_back_spring.entity.RefreshToken;
 import ru.timur.web4_back_spring.entity.User;
 import ru.timur.web4_back_spring.exception.RefreshTokenNotFoundException;
@@ -11,7 +11,6 @@ import ru.timur.web4_back_spring.exception.RefreshTokenNotFoundException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
-import java.util.Optional;
 import java.util.UUID;
 
 

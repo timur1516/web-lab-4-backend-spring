@@ -7,7 +7,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import ru.timur.web4_back_spring.dao.UserRepository;
+import ru.timur.web4_back_spring.repository.UserRepository;
 import ru.timur.web4_back_spring.dto.*;
 import ru.timur.web4_back_spring.entity.Avatar;
 import ru.timur.web4_back_spring.entity.RefreshToken;
