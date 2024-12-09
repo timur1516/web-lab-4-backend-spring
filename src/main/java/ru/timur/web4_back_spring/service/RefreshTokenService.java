@@ -37,7 +37,7 @@ public class RefreshTokenService {
 
     public RefreshToken getRefreshToken(UUID token) throws RefreshTokenNotFoundException {
         return refreshTokenRepository.findById(token)
-                .orElseThrow(() -> new RefreshTokenNotFoundException("Token " + token.toString() + " was not found"));
+                .orElseThrow(() -> new RefreshTokenNotFoundException("Token " + token + " was not found"));
     }
 
     public boolean isExpired(RefreshToken refreshToken) {

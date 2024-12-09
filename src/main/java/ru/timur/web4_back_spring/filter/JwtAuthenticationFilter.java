@@ -14,7 +14,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -51,42 +50,36 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         log.info("Received request with url {}", requestURL);
 
         final String authHeader = request.getHeader(AUTHORIZATION_HEADER);
-        log.info("Authorization header: {}", authHeader);
+        log.info("Received authorization header: {}", authHeader);
 
         if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX)) {
             log.warn("Bearer token was not found");
-            filterChain.doFilter(request, response);
+            response.sendError(HttpStatus.FORBIDDEN.value(), "Bearer token was not found");
             return;
         }
 
         final String token;
         token = authHeader.substring(BEARER_PREFIX.length()).trim();
-        log.info("Bearer token: {}", token);
+        log.info("Received bearer token: {}", token);
 
         try {
             accessTokenService.verifyToken(token);
         } catch (JWTVerificationException e) {
             log.warn("Token verification failed: {}", e.getMessage());
-            response.setStatus(HttpStatus.FORBIDDEN.value());
+            response.sendError(HttpStatus.FORBIDDEN.value(), "Token verification failed");
             return;
         }
 
         final String username;
         username = accessTokenService.extractUsername(token);
-        log.info("Username {}", username);
+        log.info("Received username {}", username);
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            try {
-                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails, null, userDetails.getAuthorities()
-                );
-                SecurityContextHolder.getContext().setAuthentication(authToken);
-            } catch (UsernameNotFoundException e){
-                log.warn("Username {} not found", username);
-                response.setStatus(HttpStatus.FORBIDDEN.value());
-                return;
-            }
+            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                    userDetails, null, userDetails.getAuthorities()
+            );
+            SecurityContextHolder.getContext().setAuthentication(authToken);
         }
         filterChain.doFilter(request, response);
     }

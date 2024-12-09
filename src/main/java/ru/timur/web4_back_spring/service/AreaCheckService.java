@@ -24,8 +24,8 @@ public class AreaCheckService {
     }
 
     private boolean isHit(double x, double y, double r) {
-        return x * x + y * y <= r * r && y >= 0 && x >= 0 ||
-                y <= 2 * x + r && y >= 0 && x <= 0 ||
-                -r <= x && x <= 0 && -r / 2 <= y && y <= 0;
+        return x >= 0 && y >= 0 && x * x + y * y <= r * r ||
+                x >= 0 && y <= 0 && x <= r / 2 && y >= -r ||
+                x <= 0 && x >= -r / 2 && y >= 0 && y <= 2 * x + r;
     }
 }
